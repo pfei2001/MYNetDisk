@@ -27,6 +27,7 @@ export interface ImgItem {
 	uploadedBy?: string
 	storageType?: 'R2' | 'HF'
 	tags?: string[]
+	mimeType?: string
 
 	// Folder support
 	isFolder?: boolean

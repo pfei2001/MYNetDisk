@@ -4,7 +4,7 @@ import {
     ElDropdown, ElDropdownMenu, ElDropdownItem, ElImage
 } from 'element-plus'
 import {
-    faEllipsisVertical, faPen, faTrash, faShareAlt, faLink, faFolderPlus, faEye, faTag, faCheck
+    faEllipsisVertical, faPen, faTrash, faShareAlt, faLink, faFolderPlus, faEye, faTag, faCheck, faFile
 } from '@fortawesome/free-solid-svg-icons'
 import { computed, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -36,12 +36,23 @@ const displayGetName = (key: string) => {
     const parts = key.split('/')
     return parts[parts.length - 1]
 }
+
+// 是否为图片：非图片显示文件图标，点击直接下载
+const isImageFile = computed(() => (props.item.mimeType || '').startsWith('image/'))
+
+const handleCardClick = () => {
+    if (isImageFile.value) {
+        emit('preview')
+    } else {
+        window.open(props.item.url, '_blank')
+    }
+}
 </script>
 
 <template>
     <div class="group relative bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer border aspect-[4/3] md:aspect-[3/4]"
         :class="selected ? 'border-indigo-500 ring-2 ring-indigo-500/50' : 'border-gray-200 dark:border-gray-700'"
-        @click="$emit('preview')">
+        @click="handleCardClick">
 
         <!-- Selection Checkbox -->
         <div v-if="isSelectMode" class="absolute top-3 left-3 z-30" @click.stop>
@@ -52,9 +63,9 @@ const displayGetName = (key: string) => {
             </div>
         </div>
 
-        <!-- Full Background Image -->
+        <!-- Full Background Image (图片) / File Icon (非图片文件) -->
         <div class="absolute inset-0">
-            <el-image :src="item.url" fit="cover"
+            <el-image v-if="isImageFile" :src="item.url" fit="cover"
                 class="w-full h-full transition-transform duration-700 group-hover:scale-105"
                 loading="lazy">
                 <template #placeholder>
@@ -67,6 +78,11 @@ const displayGetName = (key: string) => {
                     </div>
                 </template>
             </el-image>
+            <div v-else
+                class="w-full h-full flex flex-col items-center justify-center gap-3 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">
+                <font-awesome-icon :icon="faFile" class="text-5xl text-indigo-400 dark:text-indigo-500" />
+                <span class="text-xs px-4 text-center break-all line-clamp-2">{{ displayGetName(item.key) }}</span>
+            </div>
         </div>
 
         <!-- Overlay Gradient -->

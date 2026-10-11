@@ -281,27 +281,22 @@ const appendConvertedImages = async (files: FileList | null | undefined) => {
             continue
         }
 
-        if (!file.type.startsWith('image/')) {
-            elNotify({
-                message: t('upload.notImage', { name: file.name }),
-                type: 'error'
-            })
-            continue
-        }
-
         // Store original file for re-compression
         originalFiles.value = [...originalFiles.value, file]
         originalTotalSize.value += file.size
 
-        // Compress image if compression is enabled
+        // 只有图片才压缩；非图片文件直接使用原文件
+        const isImageFile = file.type.startsWith('image/')
         try {
-            const compressResult = await compressImage(file, currentCompressionLevel.value)
+            const finalFile = isImageFile
+                ? (await compressImage(file, currentCompressionLevel.value)).file
+                : file
 
             convertedImages.value = [
                 ...convertedImages.value,
                 {
-                    file: compressResult.file,
-                    tmpSrc: URL.createObjectURL(compressResult.file)
+                    file: finalFile,
+                    tmpSrc: URL.createObjectURL(finalFile)
                 }
             ]
         } catch (e) {

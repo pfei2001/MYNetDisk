@@ -152,7 +152,7 @@
                 <transition-group name="el-fade-in-linear">
                     <image-list-row v-for="item in uploadedImages" :key="item.url" :src="item.url" :name="item.key"
                         :size="item.size" :uploaded-at="item.uploadedAt" :original-name="item.originalName"
-                        :uploader-name="item.uploaderName" :tags="item.tags"
+                        :uploader-name="item.uploaderName" :tags="item.tags" :mime-type="item.mimeType"
                         :selected="selectedKeys.has(item.key)"
                         :is-select-mode="isSelectMode"
                         @toggleSelect="toggleSelect(item.key)"

@@ -74,7 +74,7 @@ uploadRoutes.post('/upload', uploadRateLimit, auth, async (c) => {
 
         // Fallback or default filename generation
         if (!filename) {
-            filename = await getFileName(fileType, time, c.env.DB)
+            filename = await getFileName(fileType, time, c.env.DB, file.name)
         }
 
         const fullPath = customPath + filename

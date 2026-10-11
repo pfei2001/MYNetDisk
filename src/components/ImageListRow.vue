@@ -14,7 +14,7 @@
     <!-- Thumbnail -->
     <div
       class="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700">
-      <el-image class="w-full h-full object-cover" :src="src" fit="cover" hide-on-click-modal lazy
+      <el-image v-if="isImageFile" class="w-full h-full object-cover" :src="src" fit="cover" hide-on-click-modal lazy
         @error="imageError = true" :preview-src-list="[src]">
         <template #placeholder>
           <div class="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
@@ -22,6 +22,9 @@
           </div>
         </template>
       </el-image>
+      <div v-else class="w-full h-full flex items-center justify-center text-indigo-400 dark:text-indigo-500">
+        <font-awesome-icon :icon="faFile" class="text-2xl" />
+      </div>
     </div>
 
     <!-- Info -->
@@ -61,11 +64,11 @@
         </button>
       </el-tooltip>
 
-      <el-tooltip :content="$t('manage.preview')" placement="top" :show-after="500">
+      <el-tooltip :content="isImageFile ? $t('manage.preview') : $t('common.download')" placement="top" :show-after="500">
         <button
           class="w-8 h-8 rounded-full text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors flex items-center justify-center"
-          @click.stop="emit('preview')">
-          <font-awesome-icon :icon="faEye" class="text-sm" />
+          @click.stop="handlePreviewClick">
+          <font-awesome-icon :icon="isImageFile ? faEye : faDownload" class="text-sm" />
         </button>
       </el-tooltip>
 
@@ -117,11 +120,11 @@
 </template>
 
 <script setup lang="ts">
-import { faTrashAlt, faLink, faImage, faEdit, faEye, faUser, faShareAlt, faFolderPlus, faTag, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faTrashAlt, faLink, faImage, faEdit, faEye, faUser, faShareAlt, faFolderPlus, faTag, faCheck, faFile, faDownload } from '@fortawesome/free-solid-svg-icons'
 import copy from 'copy-to-clipboard'
 import formatBytes from '../utils/format-bytes'
 import { ElTooltip, ElPopconfirm, ElImage, ElMessage } from 'element-plus'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const props = defineProps<{
@@ -132,12 +135,24 @@ const props = defineProps<{
   originalName?: string
   uploaderName?: string
   tags?: string[]
+  mimeType?: string
   selected?: boolean
   isSelectMode?: boolean
 }>()
 
 const emit = defineEmits(['delete', 'detail', 'rename', 'preview', 'share', 'addToAlbum', 'editTags', 'toggleSelect'])
 const imageError = ref(false)
+
+// 是否为图片：非图片显示文件图标，预览按钮改为下载
+const isImageFile = computed(() => (props.mimeType || '').startsWith('image/'))
+
+const handlePreviewClick = () => {
+  if (isImageFile.value) {
+    emit('preview')
+  } else {
+    window.open(props.src, '_blank')
+  }
+}
 
 const handleDelete = () => {
   emit('delete')

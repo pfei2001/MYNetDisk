@@ -128,7 +128,8 @@ imageRoutes.post('/list', listRateLimit, auth, async (c) => {
                 uploadedBy: img.user_login,
                 uploadedAt: img.created_at ? new Date(img.created_at).getTime() : undefined,
                 storageType: img.storage_type,
-                tags: tags
+                tags: tags,
+                mimeType: img.mime_type || undefined
             }
         })
 
@@ -464,6 +465,16 @@ imageRoutes.get("/:id{.+}", async (c) => {
     headers.set('content-length', object.size.toString())
     // Add Cache-Control for long-term caching of images
     headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+
+    // 非图片文件：强制下载；文件名按 RFC 5987 编码，中文文件名不乱码
+    const serveMime = img.mime_type || object.contentType || ''
+    if (!serveMime.startsWith('image/')) {
+        const dlName = img.original_name || id.split('/').pop() || 'download'
+        const encodedName = encodeURIComponent(dlName).replace(/['()*]/g,
+            (ch) => '%' + ch.charCodeAt(0).toString(16).toUpperCase())
+        const asciiName = (dlName.replace(/[^\x20-\x7e]/g, '_').replace(/"/g, '_') || 'download').slice(0, 100)
+        headers.set('Content-Disposition', `attachment; filename="${asciiName}"; filename*=UTF-8''${encodedName}`)
+    }
 
     if (range) {
         headers.set("content-range", `bytes ${range.offset}-${range.offset + object.size - 1}/${object.size}`)

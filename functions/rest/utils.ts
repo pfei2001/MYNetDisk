@@ -35,22 +35,35 @@ export function parseRange(encoded: string | null): undefined | { offset: number
     }
 }
 
-// 检查文件类是否支持
+// 检查文件类型是否支持 —— 个人网盘模式：允许所有文件类型，不再做白名单限制
 export async function checkFileType(val: string, db: D1Database): Promise<boolean> {
-    const service = new ConfigService(db)
-    const config = await service.getUploadConfig()
-    return config.some(it => it.type === val)
+    void db
+    void val
+    return true
 }
 
 // 获取文件名
-export async function getFileName(val: string, time: number, db: D1Database): Promise<string> {
+// originalName：原始文件名；未知 mime 类型时从中提取扩展名
+export async function getFileName(val: string, time: number, db: D1Database, originalName?: string): Promise<string> {
     const service = new ConfigService(db)
     const config = await service.getUploadConfig()
     const types = config.filter(it => it.type === val)
 
-    if (!types || types.length < 1) {
-        return val
+    if (types && types.length >= 1) {
+        const rand = Math.floor(Math.random() * 100000)
+        return randomString(time + rand).concat(`.${types[0].ext}`)
     }
+
+    // 未知 mime 类型：从原始文件名提取扩展名，取不到则用 .bin
+    let ext = ''
+    if (originalName) {
+        const base = originalName.split('/').pop() || ''
+        const dot = base.lastIndexOf('.')
+        if (dot > 0 && dot < base.length - 1) {
+            ext = base.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, '')
+        }
+    }
+    if (!ext) ext = 'bin'
     const rand = Math.floor(Math.random() * 100000)
-    return randomString(time + rand).concat(`.${types[0].ext}`)
+    return randomString(time + rand).concat(`.${ext}`)
 }
