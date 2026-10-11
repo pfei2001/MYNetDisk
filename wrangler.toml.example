@@ -1,0 +1,25 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "mynetdisk"
+account_id = "xxx"  # 替换为你的 Cloudflare Account ID
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "dist"
+
+[vars]
+BASE_URL = "https://your-domain.pages.dev"  # 替换为你的 Pages 域名
+ADMIN_PASSWORD = "your-password-here"       # 登录密码，请改成你自己的强密码
+# HF_TOKEN = "xxx"      # 可选：Hugging Face Token（启用 HF 存储时填写）
+# HF_REPO = "user/repo" # 可选：Hugging Face 仓库
+# STORAGE_TYPE = "R2"   # 默认存储：R2（可选 HF）
+
+[[kv_namespaces]]
+binding = "XK"
+id = "xxx"  # 替换为你创建的 KV 命名空间 ID
+
+[[r2_buckets]]
+binding = "PICX"
+bucket_name = "mynetdisk"  # 替换为你创建的 R2 存储桶名
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mynetdisk-db"  # 替换为你创建的 D1 数据库名
+database_id = "xxx"            # 替换为 D1 数据库 ID
