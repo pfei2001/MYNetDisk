@@ -125,6 +125,7 @@ export default {
         result: '上传结果',
         uploadComplete: '上传完成',
         uploadCompleteMsg: '共 {count} 张图片，{size}',
+        uploadPartialFail: '部分文件上传失败',
         fileTooLarge: '{name} 文件过大',
         notImage: '{name} 不是图片文件',
         fileExists: '文件已存在',

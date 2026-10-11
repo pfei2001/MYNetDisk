@@ -83,7 +83,7 @@ uploadRoutes.post('/upload', uploadRateLimit, auth, async (c) => {
         if (keepName) {
             const existing = await storage.head(fullPath)
             if (existing) {
-                errs.push(`${file.name}: File already exists`)
+                errs.push(`${file.name}：文件已存在，请修改文件名后重新上传`)
                 continue
             }
         }

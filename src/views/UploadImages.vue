@@ -97,7 +97,7 @@ const input = ref<HTMLInputElement>()
 const loading = ref(false)
 const router = useRouter()
 const customPath = ref('')
-const keepName = ref(false)
+const keepName = ref(true)
 const enableExpiry = ref(false)
 const expireTime = ref<Date>()
 const directorySuggestions = ref<string[]>([])
@@ -357,15 +357,27 @@ const uploadImages = () => {
     }
 
     requestUploadImages(formData)
-        .then((res) => {
-            elNotify({
-                title: t('upload.uploadComplete'),
-                message: t('upload.uploadCompleteMsg', { count: convertedImages.value.length, size: formatBytes(imagesTotalSize.value) }),
-                type: 'success'
-            })
+        .then(({ urls, errs }) => {
+            const okCount = urls.length
+            if (okCount > 0) {
+                elNotify({
+                    title: t('upload.uploadComplete'),
+                    message: t('upload.uploadCompleteMsg', { count: okCount, size: formatBytes(imagesTotalSize.value) }),
+                    type: 'success'
+                })
+            }
+            // 部分文件失败（如文件名重复）：明确提示用户改名后重传
+            if (errs) {
+                elNotify({
+                    title: t('upload.uploadPartialFail'),
+                    message: errs,
+                    type: 'warning',
+                    duration: 0
+                })
+            }
             convertedImages.value = []
-            imgResultList.value = res
-            // console.log(res)
+            imgResultList.value = urls
+            // console.log(urls)
             // router.push('/')
         })
         .catch(() => { })

@@ -46,6 +46,10 @@ request.interceptors.response.use(
 			})
 			return Promise.reject(data.msg)
 		}
+		// 需要读取完整响应（含 msg 中的部分失败信息）时，调用处传 rawResponse: true
+		if ((response.config as any).rawResponse) {
+			return data
+		}
 		return data.data
 	},
 	(error) => {
@@ -59,7 +63,9 @@ request.interceptors.response.use(
 )
 
 export const requestListImages = (data: ImgReq): Promise<ImgList> => request.post('/rest/list', data)
-export const requestUploadImages = (data: FormData): Promise<ImgItem[]> => request.post('/rest/upload', data)
+export const requestUploadImages = (data: FormData): Promise<{ urls: ImgItem[], errs: string }> =>
+	request.post('/rest/upload', data, { rawResponse: true } as any)
+		.then((d: any) => ({ urls: d.data as ImgItem[], errs: d.msg as string }))
 export const createFolder = (data: Folder): Promise<any> => request.post('/rest/folder', data)
 export const deleteFolder = (name: string): Promise<any> => request.delete('/rest/folder', { data: { name } })
 // 密码登录：成功后后端通过 httpOnly cookie 下发 session

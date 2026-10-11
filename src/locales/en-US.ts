@@ -124,6 +124,7 @@ export default {
         result: 'Upload Result',
         uploadComplete: 'Upload Complete',
         uploadCompleteMsg: '{count} images, {size}',
+        uploadPartialFail: 'Some files failed to upload',
         fileTooLarge: '{name} is too large',
         notImage: '{name} is not an image',
         fileExists: 'File already exists',
