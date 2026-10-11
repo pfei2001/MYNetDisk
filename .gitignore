@@ -1,0 +1,9 @@
+node_modules
+package-lock.json
+.idea
+yarn.lock
+dist
+.wrangler
+.env
+.env.development
+backup
