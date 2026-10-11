@@ -160,6 +160,19 @@ imageRoutes.post('/list', listRateLimit, auth, async (c) => {
                 }
             }
             prefixes = Array.from(subFolders).sort()
+
+            // 合并 R2 中的空目录标记：POST /folder 创建的 "目录名/" 零字节对象
+            // 会被 list({ delimiter: '/' }) 以 delimitedPrefixes 形式返回，
+            // 这样即使目录里还没有图片，也能显示出来
+            try {
+                const r2list = await c.env.PICX.list({ prefix: folder, delimiter: '/' })
+                for (const p of r2list.delimitedPrefixes || []) {
+                    if (!prefixes.includes(p)) prefixes.push(p)
+                }
+                prefixes.sort()
+            } catch (e) {
+                console.error('List R2 prefixes error:', e)
+            }
         }
 
         // 计算下一页的 cursor
