@@ -115,6 +115,12 @@
                         class="font-medium text-gray-700 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                         {{ it === '/' ? $t('manage.rootFolder') : String(it).replace("/", "") }}
                     </span>
+                    <button v-if="it !== '/'"
+                        class="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        :title="$t('manage.deleteFolder')"
+                        @click.stop="handleDeleteFolder(String(it))">
+                        <font-awesome-icon :icon="faTimes" class="text-xs" />
+                    </button>
                 </div>
             </div>
         </div>
@@ -255,7 +261,7 @@
 </template>
 
 <script setup lang="ts">
-import { requestListImages, requestDeleteImage, createFolder, requestRenameImage } from '../utils/request'
+import { requestListImages, requestDeleteImage, createFolder, deleteFolder, requestRenameImage } from '../utils/request'
 import formatBytes from '../utils/format-bytes'
 import type { ImgItem, ImgReq, Folder } from '../utils/types'
 import { ElImageViewer } from 'element-plus'
@@ -507,6 +513,35 @@ const handleAddFolderConfirm = async () => {
         listImages()
     } catch (err) {
         console.error(err)
+    } finally {
+        loading.value = false
+    }
+}
+
+const handleDeleteFolder = async (prefix: string) => {
+    const name = prefix.replace(/\/$/, '')
+    if (!name) return
+    try {
+        await ElMessageBox.confirm(
+            t('manage.deleteFolderConfirm', { name }),
+            t('manage.deleteFolder'),
+            { confirmButtonText: t('common.confirm'), cancelButtonText: t('common.cancel'), type: 'warning' }
+        )
+    } catch {
+        return
+    }
+    loading.value = true
+    try {
+        await deleteFolder(name)
+        ElMessage.success(t('manage.folderDeleted'))
+        // 如果正处在被删的目录里，回到根目录
+        if (delimiter.value === prefix) {
+            delimiter.value = '/'
+        }
+        listImages()
+    } catch (err) {
+        console.error(err)
+        ElMessage.error(t('manage.folderDeleteFailed'))
     } finally {
         loading.value = false
     }

@@ -61,6 +61,7 @@ request.interceptors.response.use(
 export const requestListImages = (data: ImgReq): Promise<ImgList> => request.post('/rest/list', data)
 export const requestUploadImages = (data: FormData): Promise<ImgItem[]> => request.post('/rest/upload', data)
 export const createFolder = (data: Folder): Promise<any> => request.post('/rest/folder', data)
+export const deleteFolder = (name: string): Promise<any> => request.delete('/rest/folder', { data: { name } })
 // 密码登录：成功后后端通过 httpOnly cookie 下发 session
 export const requestLogin = (password: string): Promise<{ ok: boolean }> => request.post('/rest/auth/login', { password })
 export const requestLogout = (): Promise<{ ok: boolean }> => request.post('/rest/auth/logout')
